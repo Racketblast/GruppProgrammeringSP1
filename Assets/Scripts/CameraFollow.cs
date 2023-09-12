@@ -7,7 +7,7 @@ public class CameraFollow : MonoBehaviour
 {
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 offset = new Vector3(0, 0.5f, -10f);
-    [SerializeField] private float Smoothing = 2.5f;
+    [SerializeField] private float Smoothing = 3.5f;
     private SpriteRenderer rend;
     private float horizontalValue;
 
