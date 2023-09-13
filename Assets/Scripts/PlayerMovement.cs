@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     private int startingHealth = 5;
     private int currentHealth = 0;
     public int applesCollected = 0;
+    public int playerDirection = 1; // riktningen 1 är höger | 2 är vänster
     // Start is called before the first frame update
     void Start()
     {   
@@ -67,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
         anim.SetFloat("MoveSpeed", Mathf.Abs(rgbd.velocity.x));
         anim.SetFloat("VerticalSpeed", rgbd.velocity.y);
         anim.SetBool("IsGrounded", CheckIfGrounded());
+        playerDirection = CheckIfFacingRight(playerDirection);  //Skickar in den tidigare riktningen till koden som kollar nya riktningen
     }
     private void FixedUpdate()
     {
@@ -194,4 +196,20 @@ public class PlayerMovement : MonoBehaviour
         transform.position = spawnPosition.position;
         rgbd.velocity = Vector2.zero;
     }
+    private int CheckIfFacingRight(int lastDirection) // Kollar vilken riktning spelaren står i
+    {
+        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+        {
+            return 1;
+        }
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+        {
+            return 2;
+        }
+        else
+        {
+            return lastDirection;
+        }
+    }
+}
 }
