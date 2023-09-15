@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -127,6 +128,7 @@ public class PlayerMovement : MonoBehaviour
     public void TakeDamage( int damageAmount)
     {
         currentHealth -= damageAmount;
+        GetComponent<Animator>().SetTrigger("IsHit");
         UpdateHealthBar();
 
         if (currentHealth <= 0)
@@ -191,10 +193,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void Respawn()
     {
-        currentHealth = startingHealth;
-        UpdateHealthBar();
-        transform.position = spawnPosition.position;
-        rgbd.velocity = Vector2.zero;
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //currentHealth = startingHealth;
+        //UpdateHealthBar();
+        //transform.position = spawnPosition.position;
+        //rgbd.velocity = Vector2.zero;
     }
     private int CheckIfFacingRight(int lastDirection) // Kollar vilken riktning spelaren står i
     {
