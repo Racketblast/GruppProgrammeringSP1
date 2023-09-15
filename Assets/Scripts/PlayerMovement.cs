@@ -25,7 +25,8 @@ public class PlayerMovement : MonoBehaviour
     private float rayDistance = 0.25f;
 
     private bool isGrounded;
-    private bool canMove = true;
+    private bool canMove = false;
+    private bool isDead = false;
 
     private Rigidbody2D rgbd;
     private SpriteRenderer rend;
@@ -45,13 +46,19 @@ public class PlayerMovement : MonoBehaviour
         rend = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        Appear();
+        Invoke("CanMoveAgain", 0.5f);//Appear animationen händer och då vill jag att man ska stå stil
+    }
+
+    private void Appear()
+    {
+        anim.SetBool("Appearing", true);
     }
 
     // Update is called once per frame
     void Update()
     {
         horizontalValue = Input.GetAxis("Horizontal");
-
         if (horizontalValue < 0)
         {
             FlipSprite(true);
@@ -61,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
             FlipSprite(false);
         }
 
-        if (Input.GetButtonDown("Jump") && CheckIfGrounded() == true)
+        if (Input.GetButtonDown("Jump") && CheckIfGrounded() == true && isDead == false)
         {
             Jump();
         }
@@ -71,13 +78,14 @@ public class PlayerMovement : MonoBehaviour
         anim.SetBool("IsGrounded", CheckIfGrounded());
         playerDirection = CheckIfFacingRight(playerDirection);  //Skickar in den tidigare riktningen till koden som kollar nya riktningen
     }
+
     private void FixedUpdate()
     {
         if (!canMove)
         {
             return;
         }
-        rgbd.velocity = new Vector2(horizontalValue * moveSpeed * Time.deltaTime, rgbd.velocity.y);
+            rgbd.velocity = new Vector2(horizontalValue * moveSpeed * Time.deltaTime, rgbd.velocity.y);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -127,21 +135,29 @@ public class PlayerMovement : MonoBehaviour
 
     public void TakeDamage( int damageAmount)
     {
+        anim.SetTrigger("IsHit");
         currentHealth -= damageAmount;
-        GetComponent<Animator>().SetTrigger("IsHit");
         UpdateHealthBar();
 
         if (currentHealth <= 0)
         {
-            Respawn();
+            canMove = false;// Nu kan man inte gå
+            isDead = true;// Nu kan man inte hoppa när man är död
+            rgbd.Sleep();// Nu slutar gravitationen fungera
+            rgbd.gravityScale = 0;// Nu stoppas man i luften
+            anim.SetBool("Dissapearing", true);
+            Invoke("Respawn",0.5f);// Väntar en tid innan scenen reloadas
         }
     }
 
     public void TakeKnockback(float knockbackForce, float upwards)
     {
-        canMove = false;
-        rgbd.AddForce(new Vector2(knockbackForce, upwards));
-        Invoke("CanMoveAgain", 0.25f);
+        if (currentHealth > 0)// Om man dör av en enemy tar man ingen knockback
+        {
+            canMove = false;
+            rgbd.AddForce(new Vector2(knockbackForce, upwards));
+            Invoke("CanMoveAgain", 0.25f);
+        }
     }
 
     private void CanMoveAgain()
@@ -193,13 +209,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Respawn()
     {
-
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        //currentHealth = startingHealth;
-        //UpdateHealthBar();
-        //transform.position = spawnPosition.position;
-        //rgbd.velocity = Vector2.zero;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Scenen reloadas när man dör
     }
+
     private int CheckIfFacingRight(int lastDirection) // Kollar vilken riktning spelaren står i
     {
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
