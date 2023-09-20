@@ -26397,7 +26397,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1.85
+  m_GravityScale: 1.5
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -26457,7 +26457,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 250
-  jumpForce: 300
+  jumpForce: 50
+  jumpForceDoubleJump: 5
+  jumpHeight: 5
+  doubleJump: 1
+  jumpCount: 0
   leftFoot: {fileID: 1298400853}
   rightFoot: {fileID: 1391065026}
   whatIsGround:
@@ -26476,6 +26480,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ebb602c622182b4408920143a79a2286, type: 3}
   appleParticles: {fileID: 4616369079317845962, guid: 0f362e00188bd76458b97e8ba3e9bbad, type: 3}
   dustParticles: {fileID: 4228816783749720872, guid: 2209589e7e99575469b53acb106be5f7, type: 3}
+  doubleJumpValue: 1
   applesCollected: 0
   playerDirection: 1
 --- !u!95 &1935537492
