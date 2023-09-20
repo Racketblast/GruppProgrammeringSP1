@@ -52,8 +52,8 @@ public class PlayerMovement : MonoBehaviour
         rend = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        Appear();
-        Invoke("CanMoveAgain", 0.5f);//Appear animationen händer och då vill jag att man ska stå stil
+        Invoke("Appear", 0.5f);//Appear animationen händer
+        Invoke("CanMoveAgain", 0.5f);// och då vill jag att man ska stå stil
     }
 
     private void Appear()
