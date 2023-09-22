@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Cainos\Third Party\Lucid Editor\Runtime\Attributes\GUIColorAttribute.cs" />
+    <Compile Include="Assets\Scripts\TrampolineSound.cs" />
     <Compile Include="Assets\Scripts\PlayerDash.cs" />
     <Compile Include="Assets\Scripts\DestroyAfterLifetime.cs" />
     <Compile Include="Assets\Cainos\Third Party\Lucid Editor\Runtime\Enum.cs" />
