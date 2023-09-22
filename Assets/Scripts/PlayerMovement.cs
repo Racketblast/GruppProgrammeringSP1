@@ -21,8 +21,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Image fillCollor;
     [SerializeField] private Color greenHealth, yellowHealth, redHealth;
     [SerializeField] private TMP_Text appleText;
-    [SerializeField] private AudioClip pickupSound;
+    [SerializeField] private AudioClip[] pickupSounds;
     [SerializeField] private AudioClip[] jumpSounds;
+    [SerializeField] private AudioClip takeDamageSound;
+    [SerializeField] private AudioClip enemyDeathSound;
     [SerializeField] private GameObject appleParticles, dustParticles;
 
     private float horizontalValue;
@@ -135,7 +137,7 @@ public class PlayerMovement : MonoBehaviour
             applesCollected++;
             appleText.text = "" + applesCollected;
             audioSource.pitch = Random.Range(0.9f, 1.1f);
-            audioSource.PlayOneShot(pickupSound, 0.5f);
+            audioSource.PlayOneShot(pickupSounds[0], 0.5f);
             Instantiate(appleParticles, other.transform.position, appleParticles.transform.localRotation);
         }
         if (other.CompareTag("Health"))
@@ -184,6 +186,7 @@ public class PlayerMovement : MonoBehaviour
     {
         anim.SetTrigger("IsHit");
         currentHealth -= damageAmount;
+        audioSource.PlayOneShot(takeDamageSound, 0.5f);
         UpdateHealthBar();
 
         if (currentHealth <= 0)
@@ -205,6 +208,13 @@ public class PlayerMovement : MonoBehaviour
             rgbd.AddForce(new Vector2(knockbackForce, upwards));
             Invoke("CanMoveAgain", 0.25f);
         }
+
+    }
+
+    public void EnemyDeathSound()
+    {
+        audioSource.pitch = 1.5f;
+        audioSource.PlayOneShot(enemyDeathSound, 0.9f);
     }
 
     private void CanMoveAgain()
@@ -225,7 +235,7 @@ public class PlayerMovement : MonoBehaviour
             UpdateHealthBar();
             Destroy(healthPickup);
             audioSource.pitch = Random.Range(0.9f, 1.1f);
-            audioSource.PlayOneShot(pickupSound, 0.5f);
+            audioSource.PlayOneShot(pickupSounds[1], 0.5f);
 
             if (currentHealth >= startingHealth)
             {

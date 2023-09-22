@@ -63,7 +63,8 @@ public class EnemyMovement : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-
+            
+            other.gameObject.GetComponent<PlayerMovement>().EnemyDeathSound();
             other.GetComponent<Rigidbody2D>().velocity = new Vector2(other.GetComponent<Rigidbody2D>().velocity.x, 0);
             other.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, bounciness));
             GetComponent<Animator>().SetTrigger("Hit");

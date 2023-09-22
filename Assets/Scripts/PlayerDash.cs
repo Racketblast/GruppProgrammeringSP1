@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerDash : MonoBehaviour
 {
     [SerializeField] private float dashCooldown;
+    [SerializeField] private AudioClip dashSound;
 
+    private AudioSource audioSource;
     public float dashForce = 10f;
     public float dashDuration = 0.2f;
     private bool isDashing = false;
@@ -13,7 +15,7 @@ public class PlayerDash : MonoBehaviour
     void Update()
     {
 
-
+        audioSource = GetComponent<AudioSource>();
         if ((Input.GetKeyDown(KeyCode.LeftShift) && !isDashing) || (Input.GetKeyDown(KeyCode.RightShift) && !isDashing))
         {
             StartCoroutine(Dash());
@@ -38,6 +40,9 @@ public class PlayerDash : MonoBehaviour
 
         // Totalkraft efter dash
         GetComponent<Rigidbody2D>().AddForce(dashDirection * dashForce, ForceMode2D.Impulse);
+
+        //ljud
+        audioSource.PlayOneShot(dashSound, 0.5f);
 
         // Förhindrar annan rörelse under dashen (dashen funkar inte utan detta??)
         GetComponent<PlayerMovement>().enabled = false;
