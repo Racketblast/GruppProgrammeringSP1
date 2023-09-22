@@ -5,17 +5,22 @@ using UnityEngine;
 public class QuestGiver : MonoBehaviour
 {
     [SerializeField] private GameObject textPopUp;
+    [SerializeField] private AudioClip questGiverVoice;
+
+    private AudioSource audioSource;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        audioSource = GetComponent<AudioSource>();
+        if (textPopUp != null && other.CompareTag("Player"))
         {
             textPopUp.SetActive(true);
+            audioSource.PlayOneShot(questGiverVoice, 0.5f);
         }
     }
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (textPopUp != null && other.CompareTag("Player"))
         {
             textPopUp.SetActive(false);
         }

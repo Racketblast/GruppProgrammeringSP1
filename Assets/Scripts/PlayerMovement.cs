@@ -9,22 +9,28 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 250f;
-    [SerializeField] private float jumpForce = 300f;
+    [SerializeField] private float jumpForce = 300f; //Axel - ändrade till 70 i Unity för att fungera med DJ och behålla samma jump höjd
+    [SerializeField] private float jumpForceDoubleJump = 5f; //Axel - separat jF för DJ, öka eller minska för att justera andra hoppet
+    [SerializeField] private float jumpHeight = 1f; //Axel - höjden av andra hoppet, justeras i Unity på Player
+    [SerializeField] public int doubleJump; //Axel -
+    [SerializeField] private float jumpCount = 1; //Axel -
     [SerializeField] private Transform leftFoot, rightFoot;
-    [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] public LayerMask whatIsGround;
     [SerializeField] private Transform spawnPosition;
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Image fillCollor;
     [SerializeField] private Color greenHealth, yellowHealth, redHealth;
     [SerializeField] private TMP_Text appleText;
-    [SerializeField] private AudioClip pickupSound;
+    [SerializeField] private AudioClip[] pickupSounds;
     [SerializeField] private AudioClip[] jumpSounds;
+    [SerializeField] private AudioClip takeDamageSound;
+    [SerializeField] private AudioClip enemyDeathSound;
     [SerializeField] private GameObject appleParticles, dustParticles;
 
     private float horizontalValue;
     private float rayDistance = 0.25f;
 
-    private bool isGrounded;
+    public bool isGrounded;
     private bool canMove = false;
     private bool isDead = false;
 
@@ -33,13 +39,15 @@ public class PlayerMovement : MonoBehaviour
     private Animator anim;
     private AudioSource audioSource;
 
+    public int doubleJumpValue; //Axel -
     private int startingHealth = 5;
     private int currentHealth = 0;
     public int applesCollected = 0;
     public int playerDirection = 1; // riktningen 1 är höger | 2 är vänster
     // Start is called before the first frame update
     void Start()
-    {   
+    {
+        doubleJump = doubleJumpValue; //Axel -
         currentHealth = startingHealth;
         appleText.text = "" + applesCollected;
         rgbd = GetComponent<Rigidbody2D>();
@@ -73,6 +81,35 @@ public class PlayerMovement : MonoBehaviour
             Jump();
         }
 
+
+
+        //if (SceneManager.GetActiveScene().buildIndex > 2)
+        //{
+        //    doubleJump = doubleJumpValue +1;
+        //}
+        //else
+        //{
+        //    doubleJumpValue = 0;
+        //}
+        isGrounded = CheckIfGrounded();
+        if (isGrounded == true)
+        {
+            doubleJump = doubleJumpValue;
+        }
+        if (Input.GetButtonDown("Jump") && CheckIfGrounded() == true/* || doubleJumpValue < 0*/)
+        {
+            Jump();
+            rgbd.velocity = new Vector3(rgbd.velocity.x, 0, jumpForceDoubleJump); //Axel - justerar velocity under double jump samt vanligt hopp. Nollställer y axeln då den annars applicerar jumpForceDoubleJump + jumpForce
+            rgbd.AddForce(Vector3.up * jumpHeight, (ForceMode2D)ForceMode.Impulse); //Axel - ForceMode.Impulse applicerar forcen direkt
+        }
+        else if (Input.GetButtonDown("Jump") && doubleJump > 0)
+        {
+            Jump();
+            doubleJump--;
+            rgbd.velocity = new Vector3(rgbd.velocity.x, 0, jumpForceDoubleJump);
+            rgbd.AddForce(Vector3.up * jumpHeight, (ForceMode2D)ForceMode.Impulse);
+        }
+
         anim.SetFloat("MoveSpeed", Mathf.Abs(rgbd.velocity.x));
         anim.SetFloat("VerticalSpeed", rgbd.velocity.y);
         anim.SetBool("IsGrounded", CheckIfGrounded());
@@ -96,7 +133,7 @@ public class PlayerMovement : MonoBehaviour
             applesCollected++;
             appleText.text = "" + applesCollected;
             audioSource.pitch = Random.Range(0.9f, 1.1f);
-            audioSource.PlayOneShot(pickupSound, 0.5f);
+            audioSource.PlayOneShot(pickupSounds[0], 0.5f);
             Instantiate(appleParticles, other.transform.position, appleParticles.transform.localRotation);
         }
         if (other.CompareTag("Health"))
@@ -137,6 +174,7 @@ public class PlayerMovement : MonoBehaviour
     {
         anim.SetTrigger("IsHit");
         currentHealth -= damageAmount;
+        audioSource.PlayOneShot(takeDamageSound, 0.5f);
         UpdateHealthBar();
 
         if (currentHealth <= 0)
@@ -158,6 +196,13 @@ public class PlayerMovement : MonoBehaviour
             rgbd.AddForce(new Vector2(knockbackForce, upwards));
             Invoke("CanMoveAgain", 0.25f);
         }
+
+    }
+
+    public void EnemyDeathSound()
+    {
+        audioSource.pitch = 1.5f;
+        audioSource.PlayOneShot(enemyDeathSound, 0.9f);
     }
 
     private void CanMoveAgain()
@@ -178,7 +223,7 @@ public class PlayerMovement : MonoBehaviour
             UpdateHealthBar();
             Destroy(healthPickup);
             audioSource.pitch = Random.Range(0.9f, 1.1f);
-            audioSource.PlayOneShot(pickupSound, 0.5f);
+            audioSource.PlayOneShot(pickupSounds[1], 0.5f);
 
             if (currentHealth >= startingHealth)
             {
