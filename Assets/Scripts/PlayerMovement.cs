@@ -9,9 +9,9 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 250f;
-    [SerializeField] private float jumpForce = 300f; //Axel - ändrade till 70 i Unity för att fungera med DJ och behålla samma jump höjd
-    [SerializeField] private float jumpForceDoubleJump = 5f; //Axel - separat jF för DJ, öka eller minska för att justera andra hoppet
-    [SerializeField] private float jumpHeight = 1f; //Axel - höjden av andra hoppet, justeras i Unity på Player
+    [SerializeField] private float jumpForce = 300f; //Axel - ï¿½ndrade till 70 i Unity fï¿½r att fungera med DJ och behï¿½lla samma jump hï¿½jd
+    [SerializeField] private float jumpForceDoubleJump = 5f; //Axel - separat jF fï¿½r DJ, ï¿½ka eller minska fï¿½r att justera andra hoppet
+    [SerializeField] private float jumpHeight = 1f; //Axel - hï¿½jden av andra hoppet, justeras i Unity pï¿½ Player
     [SerializeField] public int doubleJump; //Axel -
     [SerializeField] private float jumpCount = 1; //Axel -
     [SerializeField] private Transform leftFoot, rightFoot;
@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
     private int startingHealth = 5;
     private int currentHealth = 0;
     public int applesCollected = 0;
-    public int playerDirection = 1; // riktningen 1 är höger | 2 är vänster
+    public int playerDirection = 1; // riktningen 1 ï¿½r hï¿½ger | 2 ï¿½r vï¿½nster
     // Start is called before the first frame update
     void Start()
     {
@@ -52,8 +52,8 @@ public class PlayerMovement : MonoBehaviour
         rend = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        Invoke("Appear", 0.5f);//Appear animationen händer
-        Invoke("CanMoveAgain", 0.5f);// och då vill jag att man ska stå stil
+        Invoke("Appear", 0.5f);//Appear animationen hï¿½nder
+        Invoke("CanMoveAgain", 0.5f);// och dï¿½ vill jag att man ska stï¿½ stil
     }
 
     private void Appear()
@@ -89,6 +89,8 @@ public class PlayerMovement : MonoBehaviour
         //{
         //    doubleJumpValue = 0;
         //}
+
+        
         isGrounded = CheckIfGrounded();
         if (isGrounded == true)
         {
@@ -97,7 +99,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && CheckIfGrounded() == true/* || doubleJumpValue < 0*/)
         {
             Jump();
-            rgbd.velocity = new Vector3(rgbd.velocity.x, 0, jumpForceDoubleJump); //Axel - justerar velocity under double jump samt vanligt hopp. Nollställer y axeln då den annars applicerar jumpForceDoubleJump + jumpForce
+            rgbd.velocity = new Vector3(rgbd.velocity.x, 0, jumpForceDoubleJump); //Axel - justerar velocity under double jump samt vanligt hopp. Nollstï¿½ller y axeln dï¿½ den annars applicerar jumpForceDoubleJump + jumpForce
             rgbd.AddForce(Vector3.up * jumpHeight, (ForceMode2D)ForceMode.Impulse); //Axel - ForceMode.Impulse applicerar forcen direkt
         }
         else if (Input.GetButtonDown("Jump") && doubleJump > 0)
@@ -113,6 +115,8 @@ public class PlayerMovement : MonoBehaviour
         anim.SetBool("IsGrounded", CheckIfGrounded());
         playerDirection = CheckIfFacingRight(playerDirection);  //Skickar in den tidigare riktningen till koden som kollar nya riktningen
     }
+
+
 
     private void FixedUpdate()
     {
@@ -149,7 +153,15 @@ public class PlayerMovement : MonoBehaviour
         rgbd.AddForce(new Vector2(0, jumpForce));
         int randomValue = Random.Range(0, jumpSounds.Length);
         audioSource.PlayOneShot(jumpSounds[randomValue], 0.5f);
-        Instantiate(dustParticles, transform.position, dustParticles.transform.localRotation);
+        if (isGrounded == true)
+        {
+            Instantiate(dustParticles, transform.position, dustParticles.transform.localRotation);
+        }
+        else
+        {
+            return;
+        }
+
     }
 
     private bool CheckIfGrounded()
@@ -176,18 +188,18 @@ public class PlayerMovement : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            canMove = false;// Nu kan man inte gå
-            isDead = true;// Nu kan man inte hoppa när man är död
+            canMove = false;// Nu kan man inte gï¿½
+            isDead = true;// Nu kan man inte hoppa nï¿½r man ï¿½r dï¿½d
             rgbd.Sleep();// Nu slutar gravitationen fungera
             rgbd.gravityScale = 0;// Nu stoppas man i luften
             anim.SetBool("Dissapearing", true);
-            Invoke("Respawn",0.5f);// Väntar en tid innan scenen reloadas
+            Invoke("Respawn",0.5f);// Vï¿½ntar en tid innan scenen reloadas
         }
     }
 
     public void TakeKnockback(float knockbackForce, float upwards)
     {
-        if (currentHealth > 0)// Om man dör av en enemy tar man ingen knockback
+        if (currentHealth > 0)// Om man dï¿½r av en enemy tar man ingen knockback
         {
             canMove = false;
             rgbd.AddForce(new Vector2(knockbackForce, upwards));
@@ -244,10 +256,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void Respawn()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Scenen reloadas när man dör
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Scenen reloadas nï¿½r man dï¿½r
     }
 
-    private int CheckIfFacingRight(int lastDirection) // Kollar vilken riktning spelaren står i
+    private int CheckIfFacingRight(int lastDirection) // Kollar vilken riktning spelaren stï¿½r i
     {
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
         {
